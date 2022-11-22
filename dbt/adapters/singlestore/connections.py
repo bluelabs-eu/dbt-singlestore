@@ -96,7 +96,16 @@ class SingleStoreConnectionManager(SQLConnectionManager):
         )
 
     def cancel(self, connection):
-        pass
+       connection_name = connection.name
+       #print(dir(connection.handle))
+       id = connection.handle.thread_id()
+
+       kill_sql = f"kill query {id}"
+       print(kill_sql)
+       _, cursor = self.add_query(kill_sql)
+
+       res = cursor.fetchone()
+       logger.debug("Cancelling query '{}' ({})".format(connection_name, id))
 
     @contextmanager
     def exception_handler(self, sql):
